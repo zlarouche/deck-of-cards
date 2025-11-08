@@ -13,10 +13,12 @@ import java.util.List;
 public class Deck {
     private final String id;
     private final List<Card> cards;
+    private boolean added;
 
     public Deck(String id) {
         this.id = id;
         this.cards = createStandardDeck();
+        this.added = false;
     }
 
     /**
@@ -38,6 +40,14 @@ public class Deck {
 
     public List<Card> getCards() {
         return new ArrayList<>(cards); // Return copy to maintain immutability
+    }
+
+    public boolean isAdded() {
+        return added;
+    }
+    
+    public void setAdded(boolean added) {
+        this.added = added;
     }
 
     /**

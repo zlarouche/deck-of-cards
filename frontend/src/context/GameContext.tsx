@@ -7,6 +7,8 @@ interface GameContextType {
   addDeck: (deckId: string) => void;
   refreshTrigger: number;
   triggerRefresh: () => void;
+  clearGameDecks: () => void;
+  replaceDecks: (deckIds: string[]) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -20,12 +22,20 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setDecks([...decks, deckId]);
   };
 
+  const replaceDecks = (deckIds: string[]) => {
+    setDecks(deckIds);
+  };
+
   const triggerRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
+  const clearGameDecks = () => {
+    setDecks([]);
+  } 
+
   return (
-    <GameContext.Provider value={{ gameId, setGameId, decks, addDeck, refreshTrigger, triggerRefresh }}>
+    <GameContext.Provider value={{ gameId, setGameId, decks, addDeck, refreshTrigger, triggerRefresh, clearGameDecks, replaceDecks }}>
       {children}
     </GameContext.Provider>
   );

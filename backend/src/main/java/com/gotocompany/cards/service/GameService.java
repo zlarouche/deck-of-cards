@@ -1,6 +1,7 @@
 package com.gotocompany.cards.service;
 
 import com.gotocompany.cards.model.Card;
+import com.gotocompany.cards.model.Deck;
 import com.gotocompany.cards.model.Game;
 import com.gotocompany.cards.model.Player;
 import com.gotocompany.cards.model.enums.FaceValue;
@@ -36,11 +37,16 @@ public class GameService {
     }
 
     /**
-     * Deletes a game.
+     * Deletes a game and related decks.
      */
     public void deleteGame(String gameId) {
-        if (!gameRepository.existsById(gameId)) {
-            throw new IllegalArgumentException("Game not found: " + gameId);
+        Game game = findGameById(gameId);
+        for (String deckId : game.getAddedDeckIds()) {
+            deckRepository.findById(deckId).ifPresent(deck -> {
+                if (deck.isAdded()) {
+                    deckRepository.deleteById(deckId);
+                }
+            });
         }
         gameRepository.deleteById(gameId);
     }
@@ -66,8 +72,17 @@ public class GameService {
             throw new IllegalStateException("Deck " + deckId + " has already been added to the game");
         }
 
+        deck.setAdded(true);
         game.addDeck(deck);
         gameRepository.save(game);
+    }
+
+    /**
+     * Gets the IDs of all decks added to the game.
+     */
+    public Set<String> getAddedDeckIds(String gameId) {
+        Game game = findGameById(gameId);
+        return game.getAddedDeckIds();
     }
 
     /**

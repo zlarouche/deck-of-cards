@@ -3,9 +3,11 @@ package com.gotocompany.cards.repository;
 import com.gotocompany.cards.model.Deck;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Repository for managing decks in-memory.
@@ -46,6 +48,22 @@ public class DeckRepository {
      */
     public Map<String, Deck> findAll() {
         return new ConcurrentHashMap<>(decks);
+    }
+
+    /**
+     * Finds decks by their added status.
+     */
+    public List<Deck> findByAdded(boolean added) {
+        return decks.values().stream()
+                .filter(deck -> deck.isAdded() == added)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Deletes a deck by ID.
+     */
+    public void deleteById(String id) {
+        decks.remove(id);
     }
 }
 

@@ -34,6 +34,16 @@ export const addDeckToGame = async (gameId: string, request: AddDeckRequest): Pr
   await apiClient.post(`/games/${gameId}/decks`, request);
 };
 
+export const getAddedDeckIds = async (gameId: string): Promise<string[]> => {
+  const response = await apiClient.get<string[]>(`/games/${gameId}/decks`);
+  return response.data;
+}
+
+export const getUnassignedDeckIds = async (): Promise<string[]> => {
+  const response = await apiClient.get<string[]>(`/decks/unassigned`);
+  return response.data;
+};
+
 export const addPlayer = async (gameId: string, request: AddPlayerRequest): Promise<void> => {
   await apiClient.post(`/games/${gameId}/players`, request);
 };

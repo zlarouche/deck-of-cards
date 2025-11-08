@@ -4,7 +4,9 @@ import com.gotocompany.cards.model.Deck;
 import com.gotocompany.cards.repository.DeckRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Service for managing decks.
@@ -40,6 +42,15 @@ public class DeckService {
      */
     public boolean deckExists(String deckId) {
         return deckRepository.existsById(deckId);
+    }
+
+    /**
+     * Retrieves IDs of decks that have not yet been added to any game.
+     */
+    public List<String> getUnassignedDeckIds() {
+        return deckRepository.findByAdded(false).stream()
+                .map(Deck::getId)
+                .collect(Collectors.toList());
     }
 }
 

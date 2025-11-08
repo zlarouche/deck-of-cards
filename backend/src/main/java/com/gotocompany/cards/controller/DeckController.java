@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * REST controller for deck operations.
  */
@@ -28,6 +30,13 @@ public class DeckController {
         var deck = deckService.createDeck();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new CreateDeckResponse(deck.getId()));
+    }
+
+    @GetMapping("/unassigned")
+    @Operation(summary = "Get unassigned decks", description = "Returns IDs of decks that are not currently added to any game")
+    public ResponseEntity<List<String>> getUnassignedDeckIds() {
+        var deckIds = deckService.getUnassignedDeckIds();
+        return ResponseEntity.ok(deckIds);
     }
 }
 

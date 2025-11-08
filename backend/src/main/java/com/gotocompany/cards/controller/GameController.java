@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -48,6 +49,13 @@ public class GameController {
             @Valid @RequestBody AddDeckRequest request) {
         gameService.addDeckToGame(gameId, request.getDeckId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{gameId}/decks")
+    @Operation(summary = "Get added decks for a game", description = "Returns the IDs of all decks added to the game")
+    public ResponseEntity<Set<String>> getDecks(@PathVariable String gameId) {
+        var deckIds = gameService.getAddedDeckIds(gameId);
+        return ResponseEntity.ok(deckIds);
     }
 
     @PostMapping("/{gameId}/players")

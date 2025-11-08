@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -10,21 +10,21 @@ import {
   ListItem,
   ListItemText,
 } from '@mui/material';
-import { createDeck, addDeckToGame } from '../services/api';
+import { createDeck, addDeckToGame, getAddedDeckIds, getUnassignedDeckIds } from '../services/api';
 import { useGame } from '../context/GameContext';
 
 const DeckManager: React.FC = () => {
-  const { gameId, decks, addDeck, triggerRefresh } = useGame();
+  const { gameId, decks, addDeck, triggerRefresh, refreshTrigger, replaceDecks } = useGame();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [createdDecks, setCreatedDecks] = useState<string[]>([]);
+  const [unassignedDecks, setUnassignedDecks] = useState<string[]>([]);
 
   const handleCreateDeck = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await createDeck();
-      setCreatedDecks([...createdDecks, response.deckId]);
+      setUnassignedDecks((prev) => [...prev, response.deckId]);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create deck');
     } finally {
@@ -49,6 +49,31 @@ const DeckManager: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const loadDecks = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [availableDeckIds, addedDeckIds] = await Promise.all([
+        getUnassignedDeckIds(),
+        gameId ? getAddedDeckIds(gameId) : Promise.resolve<string[]>([]),
+      ]);
+      setUnassignedDecks(availableDeckIds);
+      replaceDecks(addedDeckIds);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Failed to load decks');
+      setUnassignedDecks([]);
+      if (!gameId) {
+        replaceDecks([]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadDecks();
+  }, [gameId, refreshTrigger]);
 
   return (
     <Card>
@@ -75,13 +100,13 @@ const DeckManager: React.FC = () => {
           </Button>
         </Box>
 
-        {createdDecks.length > 0 && (
+        {unassignedDecks.length > 0 && (
           <Box>
             <Typography variant="h6" gutterBottom>
-              Created Decks
+              Available Decks
             </Typography>
             <List>
-              {createdDecks.map((deckId) => (
+              {unassignedDecks.map((deckId) => (
                 <ListItem
                   key={deckId}
                   secondaryAction={

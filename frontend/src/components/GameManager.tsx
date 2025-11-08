@@ -15,7 +15,7 @@ import { createGame, deleteGame } from '../services/api';
 import { useGame } from '../context/GameContext';
 
 const GameManager: React.FC = () => {
-  const { gameId, setGameId } = useGame();
+  const { gameId, setGameId, triggerRefresh, replaceDecks } = useGame();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -40,7 +40,9 @@ const GameManager: React.FC = () => {
     try {
       await deleteGame(gameId);
       setGameId(null);
+      replaceDecks([]);
       setDeleteDialogOpen(false);
+      triggerRefresh();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete game');
     } finally {

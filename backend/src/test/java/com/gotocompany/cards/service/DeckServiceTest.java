@@ -53,5 +53,19 @@ class DeckServiceTest {
             deckService.findDeckById("non-existent");
         });
     }
+
+    @Test
+    void testGetUnassignedDeckIds() {
+        Deck deck1 = deckService.createDeck();
+        Deck deck2 = deckService.createDeck();
+
+        deck1.setAdded(true);
+        deckRepository.save(deck1);
+
+        var unassignedIds = deckService.getUnassignedDeckIds();
+        assertTrue(unassignedIds.contains(deck2.getId()));
+        assertFalse(unassignedIds.contains(deck1.getId()));
+        assertEquals(1, unassignedIds.size());
+    }
 }
 

@@ -62,6 +62,13 @@ public class Game {
     }
 
     /**
+     * Returns the IDs of all decks added to this game.
+     */
+    public Set<String> getAddedDeckIds() {
+        return new HashSet<>(addedDeckIds);
+    }
+
+    /**
      * Adds a player to the game.
      */
     public void addPlayer(Player player) {

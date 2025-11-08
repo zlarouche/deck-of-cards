@@ -68,9 +68,6 @@ const ShuffleButton: React.FC = () => {
           >
             {loading ? 'Shuffling...' : 'Shuffle Game Deck'}
           </Button>
-          <Typography variant="body2" color="text.secondary">
-            Uses Fisher-Yates shuffle algorithm
-          </Typography>
         </Box>
       </CardContent>
     </Card>
