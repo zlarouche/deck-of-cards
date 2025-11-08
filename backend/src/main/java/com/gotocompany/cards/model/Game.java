@@ -75,7 +75,11 @@ public class Game {
      * Removes a player from the game.
      */
     public void removePlayer(String playerName) {
-        players.remove(playerName);
+        Player player = players.remove(playerName);
+        if (player == null) {
+            throw new IllegalArgumentException("Player " + playerName + " not found in game");
+        }
+        shoe.addAll(player.releaseHand());
     }
 
     /**

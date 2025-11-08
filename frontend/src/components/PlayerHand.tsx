@@ -28,6 +28,10 @@ const PlayerHand: React.FC = () => {
     try {
       const data = await getPlayersSorted(gameId);
       setPlayers(data);
+      if (data.length === 0) {
+        setSelectedPlayer('');
+        setCards([]);
+      }
       if (data.length > 0 && !selectedPlayer) {
         setSelectedPlayer(data[0].name);
       }

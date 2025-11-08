@@ -17,7 +17,7 @@ import { addPlayer, removePlayer, getPlayersSorted } from '../services/api';
 import { useGame } from '../context/GameContext';
 
 const PlayerManager: React.FC = () => {
-  const { gameId, refreshTrigger } = useGame();
+  const { gameId, refreshTrigger, triggerRefresh } = useGame();
   const [playerName, setPlayerName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +50,7 @@ const PlayerManager: React.FC = () => {
     setError(null);
     try {
       await addPlayer(gameId, { playerName: playerName.trim() });
+      triggerRefresh();
       setPlayerName('');
       await loadPlayers();
     } catch (err: any) {
@@ -65,6 +66,7 @@ const PlayerManager: React.FC = () => {
     setError(null);
     try {
       await removePlayer(gameId, name);
+      triggerRefresh();
       await loadPlayers();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to remove player');

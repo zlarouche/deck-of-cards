@@ -3,6 +3,7 @@ package com.gotocompany.cards.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gotocompany.cards.dto.AddDeckRequest;
 import com.gotocompany.cards.dto.AddPlayerRequest;
+import com.gotocompany.cards.dto.RemovePlayerRequest;
 import com.gotocompany.cards.dto.DealCardsRequest;
 import com.gotocompany.cards.model.Game;
 import com.gotocompany.cards.service.DeckService;
@@ -18,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -78,6 +78,11 @@ class GameControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testRemovePlayer() throws Exception {
+        RemovePlayerRequest request = new RemovePlayerRequest("Alice");
     }
 
     @Test
