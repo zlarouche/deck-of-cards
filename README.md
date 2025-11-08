@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# deck-of-cards
-=======
 # Deck of Cards Game
 
 A full-stack application for managing card games with multiple players, decks, and card dealing operations. Built with Spring Boot (Java) backend and React TypeScript frontend.
