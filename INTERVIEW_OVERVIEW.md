@@ -38,6 +38,40 @@ Controller → Service → Repository → Model
            Logic      Storage
 ```
 
+### Request Flow Overview
+The diagram below walks through a typical `dealCards` request from the React UI down to the domain model and back, including how errors are surfaced.
+
+```mermaid
+sequenceDiagram
+    participant React as React Component
+    participant Api as api.ts Helper
+    participant Axios as Axios Client
+    participant Controller as GameController
+    participant Service as GameService
+    participant Model as Game/Player Models
+    participant Repo as In-Memory Repositories
+    participant Handler as GlobalExceptionHandler
+
+    React->>Api: api.dealCards(gameId, payload)
+    Api->>Axios: POST /api/games/{id}/deal (DealCardsRequest)
+    Axios->>Controller: HTTP request JSON body
+    Controller->>Service: dealCards(gameId, playerName, count)
+    Service->>Repo: load Game/Deck
+    Service->>Model: game.dealCards(...)
+    Model-->>Service: List<Card>
+    Service-->>Controller: Cards dealt
+    Controller-->>Axios: 200 OK + CardDto[]
+    Axios-->>React: Promise resolves with data
+
+    alt Business rule violated
+        Model-->>Service: throws IllegalStateException
+        Service-->>Controller: exception bubbles
+        Controller->>Handler: exception intercepted
+        Handler-->>Axios: 400/409 JSON error payload
+        Axios-->>React: Promise rejects with error
+    end
+```
+
 ### Key Files Location
 - **Shuffle Algorithm:** `backend/src/main/java/com/gotocompany/cards/util/ShuffleUtil.java`
 - **Core Business Logic:** `backend/src/main/java/com/gotocompany/cards/service/GameService.java`
