@@ -22,6 +22,7 @@ class DeckControllerTest {
     @MockBean
     private DeckService deckService;
 
+    @SuppressWarnings("null")
     @Test
     void testCreateDeck() throws Exception {
         Deck mockDeck = new Deck("test-deck-id");

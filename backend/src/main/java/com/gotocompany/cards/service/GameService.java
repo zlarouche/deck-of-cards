@@ -1,7 +1,6 @@
 package com.gotocompany.cards.service;
 
 import com.gotocompany.cards.model.Card;
-import com.gotocompany.cards.model.Deck;
 import com.gotocompany.cards.model.Game;
 import com.gotocompany.cards.model.Player;
 import com.gotocompany.cards.model.enums.FaceValue;

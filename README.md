@@ -482,6 +482,12 @@ for (int i = cards.size() - 1; i > 0; i--) {
 
 **Trade-off**: Data is lost on server restart, but this is acceptable for the assignment scope.
 
+**Migration Path**:
+- Preserve business logic inside domain models (`Game`, `Player`, `Deck`, `Card`).
+- Introduce JPA entities mirroring database tables and Spring Data repository interfaces (`interface GameRepository extends JpaRepository<GameEntity, UUID>`).
+- Map between entities ↔ domain objects inside services to keep business rules testable without the database.
+- Use PostgreSQL (or similar) with Flyway/Liquibase migrations, `@EntityGraph` for eager loading, and transactional service methods for operations like `dealCards` and `addDeckToGame`.
+
 ### 4. RESTful API Design
 
 **Decision**: Follow REST principles with resource-based URLs.
@@ -655,6 +661,9 @@ deck-of-cards-game/
 While this implementation meets all assignment requirements, potential enhancements for a production system:
 
 1. **Database Integration**: Replace in-memory storage with PostgreSQL/MySQL
+   - Create JPA entities, repositories, and migrations
+   - Use domain-to-entity mapping to preserve business logic
+   - Add integration tests using Testcontainers for PostgreSQL
 2. **Authentication**: Add user authentication and authorization
 3. **WebSockets**: Real-time updates for multiplayer games
 4. **Game Rules**: Implement specific card game rules (Blackjack, Poker, etc.)
@@ -671,4 +680,3 @@ This project is created for a technical assignment.
 
 Created as part of a Senior Software Developer technical assessment.
 
->>>>>>> 9883163 (Add initial project structure with backend and frontend components for a Deck of Cards game. Includes REST API setup with Spring Boot, React frontend, Docker configurations, and basic game logic.)

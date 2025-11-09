@@ -48,6 +48,7 @@ class GameControllerTest {
         gameId = "test-game-id";
     }
 
+    @SuppressWarnings("null")
     @Test
     void testCreateGame() throws Exception {
         Game mockGame = new Game(gameId);
@@ -58,6 +59,7 @@ class GameControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
+    @SuppressWarnings("null")
     @Test
     void testAddDeckToGame() throws Exception {
         AddDeckRequest request = new AddDeckRequest("deck-id");
@@ -69,6 +71,7 @@ class GameControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @SuppressWarnings("null")
     @Test
     void testAddPlayer() throws Exception {
         AddPlayerRequest request = new AddPlayerRequest("Alice");
@@ -80,11 +83,13 @@ class GameControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @SuppressWarnings("unused")
     @Test
     void testRemovePlayer() throws Exception {
         RemovePlayerRequest request = new RemovePlayerRequest("Alice");
     }
 
+    @SuppressWarnings("null")
     @Test
     void testDealCards() throws Exception {
         DealCardsRequest request = new DealCardsRequest("Alice", 5);
@@ -104,6 +109,7 @@ class GameControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @SuppressWarnings("null")
     @Test
     void testGetPlayers() throws Exception {
         when(gameService.getPlayersSorted(anyString())).thenReturn(new ArrayList<>());
@@ -113,6 +119,7 @@ class GameControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
+    @SuppressWarnings("null")
     @Test
     void testGetUndealtCardsBySuit() throws Exception {
         when(gameService.getUndealtCardsBySuit(anyString())).thenReturn(new HashMap<>());
