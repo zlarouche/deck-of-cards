@@ -400,9 +400,9 @@ mvn test
 ```
 
 **Test Coverage**:
-- Unit tests for services (GameService, DeckService)
-- Unit tests for shuffle algorithm
-- Integration tests for controllers (MockMvc)
+- Unit + integration coverage across services (`GameService`, `DeckService`), utility shuffle code, and MockMvc controller flows (`GameController`, `DeckController`).
+- Validates deck addition rules, duplication guards, card dealing edge cases, sorting, shuffle behavior, and error responses.
+- Last verified: `mvn test` (2025-11-09) → 35 tests, all passing.
 
 **Key Test Scenarios**:
 - Game creation and deletion
@@ -414,7 +414,9 @@ mvn test
 
 ### Frontend Tests
 
-Run frontend tests:
+No automated React tests are defined yet; `npm test` reports “No tests found.”
+
+If you add component tests (Jest + Testing Library), run them with:
 ```bash
 cd frontend
 npm test
@@ -479,4 +481,63 @@ deck-of-cards-game/
 ├── docker-compose.yml
 └── README.md
 ```
+
+## Design Decisions
+
+1. **Spring Boot Framework**  
+   I leaned on Spring Boot for the backend because it’s an industry-standard framework with a deep ecosystem. It gives me first-class REST support, validation, and error handling out of the box, and leaves the door open for layering in database access, security, or messaging later.
+
+2. **Fisher-Yates Shuffle Algorithm**  
+   The requirements ruled out library shuffles, so I implemented the classic Fisher-Yates routine using `SecureRandom` for better randomness. It’s O(n), space efficient, and guarantees every permutation is equally likely.
+   ```java
+   for (int i = cards.size() - 1; i > 0; i--) {
+       int j = random.nextInt(i + 1);
+       Card temp = cards.get(i);
+       cards.set(i, cards.get(j));
+       cards.set(j, temp);
+   }
+   ```
+
+3. **In-Memory Storage**  
+   For the assignment scope I kept persistence simple with `ConcurrentHashMap`-backed repositories. They’re thread-safe, easy to reason about, and let the rest of the layers focus on domain rules. The trade-off is obvious—state disappears on restart—but it keeps the prototype fast to iterate.
+
+   **Migration path:**  
+   - Keep business logic in the domain models (`Game`, `Player`, `Deck`, `Card`).  
+   - Introduce JPA entities plus Spring Data repositories (`interface GameRepository extends JpaRepository<GameEntity, UUID>`).  
+   - Map entities ↔ domain inside services so the domain stays testable.  
+   - Use PostgreSQL with Flyway/Liquibase migrations, `@EntityGraph` for eager loads, and transactional service methods (`dealCards`, `addDeckToGame`) to maintain consistency.
+
+4. **RESTful API Design**  
+   Everything is expressed as resources with predictable URLs and HTTP verbs: `POST /api/games` to create, `GET /api/games/{id}/players` to dig into nested resources, `DELETE /api/games/{id}` to clean up. Sticking to REST doctrine keeps the API easy to use and easy to document.
+
+5. **DTOs (Data Transfer Objects)**  
+   Controllers convert between DTOs and domain objects. That separation keeps the API contract stable, hides internal fields, and gives me a natural place to apply validation annotations before anything hits the service layer.
+
+6. **Service Layer Pattern**  
+   All the business rules live inside services. Controllers stay thin, services are unit-test friendly, and the domain logic can be reused if we ever add another interface (CLI, batch jobs, etc.).
+
+7. **React with TypeScript**  
+   TypeScript catches shape issues before they reach the browser and makes refactors safer. Paired with React 18 it delivers modern developer ergonomics and familiar tooling for reviewers.
+
+8. **Material-UI**  
+   MUI let me ship a polished UI quickly. The trade-off is additional bundle weight, but for this assignment the speed of development and consistent design language were worth it.
+
+9. **Context API for State Management**  
+   Global state needs are modest, so React Context keeps things lightweight. If the app grows, dropping in Redux or another store is straightforward thanks to the service/component boundaries already in place.
+
+10. **Docker & Docker Compose**  
+    Docker files ensure anyone can spin up the stack with a single command. It also mirrors how I’d package the services for a production environment.
+
+## Future Enhancements
+
+While the current implementation satisfies the assignment brief, here’s how I’d evolve it for production:
+
+- **Database integration:** Swap the in-memory repositories for PostgreSQL/MySQL, add JPA entities and Flyway/Liquibase migrations, and cover persistence with Testcontainers-backed integration tests.  
+- **Authentication & authorization:** Introduce Spring Security plus JWT (or session management) so only authenticated users can manipulate games.  
+- **Real-time updates:** Layer in WebSockets or Server-Sent Events to broadcast game changes instantly to connected clients.  
+- **Game rule engines:** Extend the domain layer to support specific titles (Blackjack, Poker) with scoring and betting logic.  
+- **Durable persistence:** Persist game snapshots so sessions survive restarts or can be resumed later.  
+- **Caching:** Use Redis for hot reads (undealt counts, leaderboard) to improve response times under load.  
+- **Monitoring & logging:** Wire up structured logging and observability (e.g., ELK stack, Prometheus/Grafana) for operational insight.  
+- **CI/CD pipeline:** Automate tests, container builds, and deployments to keep releases repeatable and safe.
 
