@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
+  Alert,
   Card,
   CardContent,
-  Typography,
-  Alert,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Grid,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
+  Stack,
+  Typography,
 } from '@mui/material';
 import { getPlayerCards, getPlayersSorted } from '../services/api';
 import { useGame } from '../context/GameContext';
@@ -76,16 +76,14 @@ const PlayerHand: React.FC = () => {
 
   return (
     <Card>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Player's Hand
-        </Typography>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Typography variant="h5">Player's Hand</Typography>
 
         {players.length === 0 ? (
-          <Alert severity="info">No players in the game</Alert>
+          <Alert severity="info">Add players to view their hands.</Alert>
         ) : (
-          <>
-            <FormControl fullWidth sx={{ mb: 2 }}>
+          <Stack spacing={3}>
+            <FormControl fullWidth>
               <InputLabel>Player</InputLabel>
               <Select
                 value={selectedPlayer}
@@ -101,26 +99,27 @@ const PlayerHand: React.FC = () => {
             </FormControl>
 
             {cards.length === 0 ? (
-              <Alert severity="info">No cards in hand</Alert>
+              <Alert severity="info">Selected player has no cards yet.</Alert>
             ) : (
-              <Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  {cards.length} card(s) - Total Value: {cards.reduce((sum, card) => sum + card.value, 0)}
+              <Stack spacing={2}>
+                <Typography variant="body2" color="text.secondary">
+                  {cards.length} card(s) • Total Value:{' '}
+                  {cards.reduce((sum, card) => sum + card.value, 0)}
                 </Typography>
                 <Grid container spacing={1}>
                   {cards.map((card, index) => (
-                    <Grid item xs={6} sm={4} md={3} key={index}>
+                    <Grid item xs={6} sm={4} md={3} key={`${card.displayName}-${index}`}>
                       <Paper
                         elevation={2}
                         sx={{
-                          p: 1,
+                          p: 1.5,
                           textAlign: 'center',
                           border: `1px solid ${getCardColor(card.suit)}`,
                         }}
                       >
                         <Typography
                           variant="body2"
-                          sx={{ fontWeight: 'bold', color: getCardColor(card.suit) }}
+                          sx={{ fontWeight: 600, color: getCardColor(card.suit) }}
                         >
                           {card.displayName}
                         </Typography>
@@ -131,9 +130,9 @@ const PlayerHand: React.FC = () => {
                     </Grid>
                   ))}
                 </Grid>
-              </Box>
+              </Stack>
             )}
-          </>
+          </Stack>
         )}
       </CardContent>
     </Card>

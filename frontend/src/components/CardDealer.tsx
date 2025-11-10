@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
+  Alert,
   Button,
   Card,
   CardContent,
-  Typography,
-  Alert,
-  TextField,
-  MenuItem,
-  Select,
   FormControl,
   InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { dealCards, getPlayersSorted } from '../services/api';
 import { useGame } from '../context/GameContext';
@@ -69,24 +69,22 @@ const CardDealer: React.FC = () => {
 
   return (
     <Card>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Deal Cards
-        </Typography>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Typography variant="h5">Deal Cards</Typography>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          <Alert severity="error" onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
 
         {success && (
-          <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
+          <Alert severity="success" onClose={() => setSuccess(null)}>
             {success}
           </Alert>
         )}
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Stack spacing={2}>
           <FormControl fullWidth>
             <InputLabel>Player</InputLabel>
             <Select
@@ -107,7 +105,7 @@ const CardDealer: React.FC = () => {
             label="Number of Cards"
             type="number"
             value={count}
-            onChange={(e) => setCount(parseInt(e.target.value) || 1)}
+            onChange={(e) => setCount(parseInt(e.target.value, 10) || 1)}
             inputProps={{ min: 1, max: 52 }}
             disabled={loading || !gameId}
             fullWidth
@@ -118,10 +116,11 @@ const CardDealer: React.FC = () => {
             color="primary"
             onClick={handleDealCards}
             disabled={loading || !gameId || players.length === 0}
+            size="large"
           >
             Deal Cards
           </Button>
-        </Box>
+        </Stack>
       </CardContent>
     </Card>
   );

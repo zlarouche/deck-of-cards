@@ -35,6 +35,15 @@ export interface Player {
   handSize: number;
 }
 
+export interface Game {
+  id: string;
+  shoe: Card[];
+  players: Record<string, Player>;
+  addedDeckIds: string[];
+  shoeSize: number;
+  playerCount: number;
+}
+
 export interface CreateGameResponse {
   gameId: string;
 }

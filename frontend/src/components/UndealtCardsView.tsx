@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Alert,
   Box,
   Card,
   CardContent,
-  Typography,
-  Alert,
   Grid,
   Paper,
-  Tabs,
+  Stack,
   Tab,
+  Tabs,
+  Typography,
 } from '@mui/material';
 import { getUndealtCardsBySuit, getUndealtCardsCount } from '../services/api';
 import { useGame } from '../context/GameContext';
@@ -70,16 +71,14 @@ const UndealtCardsView: React.FC = () => {
 
   return (
     <Card>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Undealt Cards
-        </Typography>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Typography variant="h5">Undealt Cards</Typography>
 
         {!gameId ? (
-          <Alert severity="info">Please create a game first</Alert>
+          <Alert severity="info">Create a game to view undealt cards.</Alert>
         ) : (
-          <>
-            <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)} sx={{ mb: 2 }}>
+          <Stack spacing={3}>
+            <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
               <Tab label="By Suit" />
               <Tab label="Detailed Count" />
             </Tabs>
@@ -160,7 +159,7 @@ const UndealtCardsView: React.FC = () => {
                 )}
               </Box>
             )}
-          </>
+          </Stack>
         )}
       </CardContent>
     </Card>

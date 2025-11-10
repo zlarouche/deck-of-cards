@@ -19,10 +19,10 @@ import ShuffleButton from './components/ShuffleButton';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#093583',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#835809',
     },
   },
 });
@@ -62,7 +62,7 @@ function App() {
             <Grid item xs={12} md={6}>
               <PlayerHand />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12}> 
               <UndealtCardsView />
             </Grid>
           </Grid>

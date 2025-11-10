@@ -34,6 +34,7 @@ class GameServiceTest {
         assertNotNull(game.getId());
         assertEquals(0, game.getShoeSize());
         assertEquals(0, game.getPlayers().size());
+        assertEquals(0, game.getAddedDeckIds().size());
     }
 
     @Test
@@ -44,6 +45,20 @@ class GameServiceTest {
         
         gameService.deleteGame(gameId);
         assertFalse(gameRepository.existsById(gameId));
+    }
+
+    @Test 
+    void testGetGames() {
+        Game game = gameService.createGame();
+        List<Game> games = gameService.getGames();
+        assertEquals(1, games.size());
+        assertEquals(game.getId(), games.get(0).getId());
+    }
+
+    @Test
+    void testGetGamesEmpty() {
+        List<Game> games = gameService.getGames();
+        assertEquals(0, games.size());
     }
 
     @Test

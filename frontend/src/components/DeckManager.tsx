@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
-  Typography,
-  Alert,
+  Divider,
   List,
   ListItem,
   ListItemText,
+  Stack,
+  Typography,
 } from '@mui/material';
 import { createDeck, addDeckToGame, getAddedDeckIds, getUnassignedDeckIds } from '../services/api';
 import { useGame } from '../context/GameContext';
@@ -77,38 +79,49 @@ const DeckManager: React.FC = () => {
 
   return (
     <Card>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Deck Management
-        </Typography>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Typography variant="h5">Deck Management</Typography>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          <Alert severity="error" onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
 
-        <Box sx={{ mb: 2 }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
+        >
           <Button
             variant="contained"
             color="primary"
             onClick={handleCreateDeck}
             disabled={loading}
-            sx={{ mb: 2 }}
           >
             Create New Deck
           </Button>
-        </Box>
+          <Typography variant="body2" color="text.secondary">
+            Create decks and assign them to the active game.
+          </Typography>
+        </Stack>
 
-        {unassignedDecks.length > 0 && (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Available Decks
+        <Divider />
+
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Available Decks
+          </Typography>
+          {unassignedDecks.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              No unassigned decks. Create a deck to add it to the list.
             </Typography>
-            <List>
+          ) : (
+            <List disablePadding>
               {unassignedDecks.map((deckId) => (
                 <ListItem
                   key={deckId}
+                  divider
                   secondaryAction={
                     <Button
                       variant="outlined"
@@ -116,7 +129,7 @@ const DeckManager: React.FC = () => {
                       onClick={() => handleAddDeckToGame(deckId)}
                       disabled={loading || !gameId || decks.includes(deckId)}
                     >
-                      {decks.includes(deckId) ? 'Added' : 'Add to Game'}
+                      Add to Game
                     </Button>
                   }
                 >
@@ -124,19 +137,29 @@ const DeckManager: React.FC = () => {
                 </ListItem>
               ))}
             </List>
-          </Box>
-        )}
+          )}
+        </Box>
 
-        {decks.length > 0 && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Decks in Game
-            </Typography>
+        <Divider />
+
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Decks in Selected Game
+          </Typography>
+          {decks.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              {decks.length} deck(s) added to game
+              No decks have been added to the active game yet.
             </Typography>
-          </Box>
-        )}
+          ) : (
+            <List disablePadding>
+              {decks.map((deckId) => (
+                <ListItem key={deckId} divider>
+                  <ListItemText primary={`Deck ID: ${deckId}`} />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Box>
       </CardContent>
     </Card>
   );

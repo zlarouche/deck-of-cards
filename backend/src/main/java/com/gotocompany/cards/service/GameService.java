@@ -51,6 +51,17 @@ public class GameService {
     }
 
     /**
+     * Gets all games.
+     */
+    public List<Game> getGames() {
+        Map<String, Game> games = gameRepository.findAll();
+        if (games.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(games.values());
+    }
+
+    /**
      * Finds a game by ID.
      */
     public Game findGameById(String gameId) {
@@ -199,5 +210,6 @@ public class GameService {
         game.shuffle();
         // No need to save as shuffle modifies the internal list in-place
     }
+
 }
 

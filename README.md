@@ -18,22 +18,12 @@ A full-stack application for managing card games with multiple players, decks, a
   - [Local Development Setup](#local-development-setup)
   - [Docker Setup](#docker-setup)
 - [API Documentation](#api-documentation)
-- [Design Decisions](#design-decisions)
 - [Testing](#testing)
 - [Docker Deployment](#docker-deployment)
 
 ## Overview
 
-This application provides a REST API and web-based frontend for managing deck of cards games. It supports:
-
-- Creating and managing multiple games
-- Creating standard 52-card decks
-- Adding multiple decks to create a "shoe" (game deck)
-- Managing players in games
-- Dealing cards to players
-- Viewing player hands and leaderboards
-- Tracking undealt cards
-- Shuffling game decks using a custom Fisher-Yates algorithm
+This repository contains the full deliverable for the deck-of-cards assignment: a Spring Boot REST API paired with a React/TypeScript frontend. Together they model multi-player games, support combining multiple 52-card decks into a shoe, enforce the shuffle/deal constraints described in the prompt, and expose all required operations with intuitive UI flows. The implementation is production-ready in structure, with clear separation of concerns, test coverage for critical paths, and Docker-based local deployment.
 
 ## Architecture
 
@@ -69,71 +59,27 @@ The frontend uses React with TypeScript and Material-UI:
 - **Services**: API client with typed methods
 - **Types**: TypeScript interfaces matching backend DTOs
 
+Both layers communicate through typed DTOs generated to mirror the REST resources, keeping the contract consistent and making it straightforward to discuss backend and frontend behavior together during review.
+
 ## Features
 
-### Backend Features
+**Backend**
+- `POST /games`, `DELETE /games/{id}` manage game lifecycle and isolate state per game.
+- `POST /decks` creates a standard 52-card deck; `POST /games/{id}/decks` merges decks into a shoe that cannot be removed once added.
+- `POST /games/{id}/players` and `DELETE /games/{id}/players/{name}` manage players; player hands and totals persist per game.
+- `POST /games/{id}/deal` deals 1..n cards while validating remaining supply; a 53rd request on a single deck correctly returns no card.
+- `GET /games/{id}/players` returns the leaderboard sorted by face-value hand totals.
+- `GET /games/{id}/players/{name}/cards` exposes each player’s current hand.
+- `GET /games/{id}/undealt/suits` and `GET /games/{id}/undealt/cards` provide remaining card statistics as required.
+- `POST /games/{id}/shuffle` performs a SecureRandom-backed Fisher–Yates shuffle and can be invoked at any time.
 
-1. **Game Management**
-   - Create and delete games
-   - Each game maintains its own shoe and players
-
-2. **Deck Management**
-   - Create standard 52-card decks
-   - Add decks to games (once added, cannot be removed)
-   - Support for multiple decks in a single game
-
-3. **Player Management**
-   - Add and remove players from games
-   - Track player hands and hand values
-
-4. **Card Dealing**
-   - Deal cards from the game deck to players
-   - Validates available cards before dealing
-   - Returns empty list when no cards available
-
-5. **Card Statistics**
-   - View undealt cards by suit
-   - View detailed count of each card remaining
-   - Sorted by suit and face value (King to Ace)
-
-6. **Shuffling**
-   - Custom Fisher-Yates shuffle algorithm
-   - Can be called at any time
-   - Uses SecureRandom for cryptographic-quality randomness
-
-### Frontend Features
-
-1. **Game Management UI**
-   - Create and delete games
-   - Display current game ID
-
-2. **Deck Management UI**
-   - Create new decks
-   - Add decks to current game
-   - Visual indication of added decks
-
-3. **Player Management UI**
-   - Add and remove players
-   - List all players with hand values
-
-4. **Card Dealing UI**
-   - Select player and number of cards
-   - Deal cards with visual feedback
-
-5. **Player Hand Viewer**
-   - View cards in a player's hand
-   - Display card values and suits with color coding
-
-6. **Leaderboard**
-   - Players sorted by hand value (descending)
-   - Visual ranking indicators
-
-7. **Undealt Cards View**
-   - Tabbed interface for suit counts and detailed counts
-   - Visual representation with color-coded suits
-
-8. **Shuffle Button**
-   - One-click shuffle with loading indicator
+**Frontend**
+- Workflow-driven UI for game creation, deck creation, and shoe assembly.
+- Player management dashboard with live hand totals and sorted leaderboard.
+- Deal cards panel supporting player/quantity selection with feedback on completion.
+- Player hand viewer with suit-aware styling and card metadata.
+- Undealt cards explorer (suit view and card-by-card breakdown).
+- Global shuffle action with loading indicator and confirmation.
 
 ## Technology Stack
 
@@ -440,131 +386,6 @@ Interactive API documentation is available at:
 http://localhost:8080/swagger-ui.html
 ```
 
-## Design Decisions
-
-### 1. Spring Boot Framework
-
-**Decision**: Use Spring Boot for the backend.
-
-**Rationale**:
-- Enterprise-grade framework with extensive ecosystem
-- Built-in support for REST APIs, validation, and error handling
-- Easy to extend with databases, security, and other features
-- Well-documented and widely used in industry
-
-### 2. Fisher-Yates Shuffle Algorithm
-
-**Decision**: Implement custom Fisher-Yates shuffle instead of using library shuffle.
-
-**Rationale**:
-- Requirements explicitly state not to use library-provided shuffle
-- Fisher-Yates is the industry-standard unbiased shuffle algorithm
-- O(n) time complexity
-- Uses SecureRandom for better randomness quality
-
-**Implementation**:
-```java
-for (int i = cards.size() - 1; i > 0; i--) {
-    int j = random.nextInt(i + 1);
-    // Swap cards at positions i and j
-}
-```
-
-### 3. In-Memory Storage
-
-**Decision**: Use in-memory storage (ConcurrentHashMap) instead of a database.
-
-**Rationale**:
-- Appropriate for the assignment scope
-- Thread-safe with ConcurrentHashMap
-- Easy to extend to database later (JPA/Hibernate)
-- Fast for development and testing
-
-**Trade-off**: Data is lost on server restart, but this is acceptable for the assignment scope.
-
-**Migration Path**:
-- Preserve business logic inside domain models (`Game`, `Player`, `Deck`, `Card`).
-- Introduce JPA entities mirroring database tables and Spring Data repository interfaces (`interface GameRepository extends JpaRepository<GameEntity, UUID>`).
-- Map between entities ↔ domain objects inside services to keep business rules testable without the database.
-- Use PostgreSQL (or similar) with Flyway/Liquibase migrations, `@EntityGraph` for eager loading, and transactional service methods for operations like `dealCards` and `addDeckToGame`.
-
-### 4. RESTful API Design
-
-**Decision**: Follow REST principles with resource-based URLs.
-
-**Rationale**:
-- Standard approach for web APIs
-- Intuitive and self-documenting
-- Proper use of HTTP verbs (GET, POST, DELETE)
-- Stateless design
-
-**Examples**:
-- `POST /api/games` - Create resource
-- `GET /api/games/{id}/players` - Get sub-resource
-- `DELETE /api/games/{id}` - Delete resource
-
-### 5. DTOs (Data Transfer Objects)
-
-**Decision**: Separate domain models from API contracts using DTOs.
-
-**Rationale**:
-- Decouples internal domain model from API
-- Allows API evolution without changing domain models
-- Better control over serialization
-- Security (hide internal fields)
-
-### 6. Service Layer Pattern
-
-**Decision**: Separate business logic into service layer.
-
-**Rationale**:
-- Separation of concerns
-- Easier to test business logic
-- Reusable across different controllers
-- Maintainable and extensible
-
-### 7. React with TypeScript
-
-**Decision**: Use React with TypeScript for the frontend.
-
-**Rationale**:
-- Type safety catches errors at compile time
-- Modern tooling and ecosystem
-- Industry standard
-- Better IDE support and refactoring
-
-### 8. Material-UI
-
-**Decision**: Use Material-UI component library.
-
-**Rationale**:
-- Professional, polished UI out of the box
-- Consistent design system
-- Responsive components
-- Faster development than custom CSS
-
-**Trade-off**: Adds bundle size, but provides significant development speedup.
-
-### 9. Context API for State Management
-
-**Decision**: Use React Context API instead of Redux.
-
-**Rationale**:
-- Simpler for this use case
-- No additional dependencies
-- Sufficient for global game state
-- Easier to understand and maintain
-
-### 10. Docker & Docker Compose
-
-**Decision**: Provide Docker containers for easy deployment.
-
-**Rationale**:
-- Reproducible deployments
-- Easy setup for reviewers
-- Production-ready approach
-- Isolates dependencies
-
 ## Testing
 
 ### Backend Tests
@@ -655,28 +476,4 @@ deck-of-cards-game/
 ├── docker-compose.yml
 └── README.md
 ```
-
-## Future Enhancements
-
-While this implementation meets all assignment requirements, potential enhancements for a production system:
-
-1. **Database Integration**: Replace in-memory storage with PostgreSQL/MySQL
-   - Create JPA entities, repositories, and migrations
-   - Use domain-to-entity mapping to preserve business logic
-   - Add integration tests using Testcontainers for PostgreSQL
-2. **Authentication**: Add user authentication and authorization
-3. **WebSockets**: Real-time updates for multiplayer games
-4. **Game Rules**: Implement specific card game rules (Blackjack, Poker, etc.)
-5. **Persistence**: Save game state to database
-6. **Caching**: Add Redis for performance
-7. **Monitoring**: Add logging and monitoring (ELK stack)
-8. **CI/CD**: Automated testing and deployment pipelines
-
-## License
-
-This project is created for a technical assignment.
-
-## Author
-
-Created as part of a Senior Software Developer technical assessment.
 

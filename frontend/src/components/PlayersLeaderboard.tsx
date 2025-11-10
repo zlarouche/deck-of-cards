@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
+  Alert,
   Card,
   CardContent,
-  Typography,
-  Alert,
+  Chip,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Chip,
+  Typography,
 } from '@mui/material';
 import { getPlayersSorted } from '../services/api';
 import { useGame } from '../context/GameContext';
@@ -44,46 +44,49 @@ const PlayersLeaderboard: React.FC = () => {
 
   return (
     <Card>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Players Leaderboard
-        </Typography>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Typography variant="h5">Players Leaderboard</Typography>
 
         {!gameId ? (
           <Alert severity="info">Please create a game first</Alert>
         ) : players.length === 0 ? (
-          <Alert severity="info">No players in the game</Alert>
+          <Alert severity="info">No players in the game yet.</Alert>
         ) : (
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell><strong>Rank</strong></TableCell>
-                  <TableCell><strong>Player Name</strong></TableCell>
-                  <TableCell align="right"><strong>Hand Value</strong></TableCell>
-                  <TableCell align="right"><strong>Cards</strong></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {players.map((player, index) => (
-                  <TableRow key={player.name}>
-                    <TableCell>
-                      <Chip
-                        label={index + 1}
-                        color={index === 0 ? 'primary' : 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>{player.name}</TableCell>
-                    <TableCell align="right">
-                      <strong>{player.handValue}</strong>
-                    </TableCell>
-                    <TableCell align="right">{player.handSize}</TableCell>
+          <Stack spacing={2}>
+            <Typography variant="body2" color="text.secondary">
+              Ranked by total hand value (highest first).
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Rank</strong></TableCell>
+                    <TableCell><strong>Player</strong></TableCell>
+                    <TableCell align="right"><strong>Hand Value</strong></TableCell>
+                    <TableCell align="right"><strong>Cards</strong></TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {players.map((player, index) => (
+                    <TableRow key={player.name}>
+                      <TableCell>
+                        <Chip
+                          label={index + 1}
+                          color={index === 0 ? 'primary' : 'default'}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>{player.name}</TableCell>
+                      <TableCell align="right">
+                        <strong>{player.handValue}</strong>
+                      </TableCell>
+                      <TableCell align="right">{player.handSize}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Stack>
         )}
       </CardContent>
     </Card>

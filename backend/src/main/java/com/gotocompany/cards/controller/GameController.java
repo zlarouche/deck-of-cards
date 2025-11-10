@@ -42,6 +42,16 @@ public class GameController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping
+    @Operation(summary = "Get all current games", description = "Returns a list of all current games")
+    public ResponseEntity<List<GameDto>> getGames(){
+        var games = gameService.getGames();
+        List<GameDto> gameDtos = games.stream()
+                .map(game -> new GameDto(game))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(gameDtos);
+    }
+
     @PostMapping("/{gameId}/decks")
     @Operation(summary = "Add a deck to game", description = "Adds a deck to the game's shoe. Once added, a deck cannot be removed.")
     public ResponseEntity<Void> addDeckToGame(
@@ -133,5 +143,6 @@ public class GameController {
         gameService.shuffleGameDeck(gameId);
         return ResponseEntity.ok().build();
     }
+
 }
 

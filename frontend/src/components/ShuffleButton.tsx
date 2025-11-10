@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
-  Box,
+  Alert,
   Button,
   Card,
   CardContent,
-  Typography,
-  Alert,
   CircularProgress,
+  Stack,
+  Typography,
 } from '@mui/material';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { shuffleGameDeck } from '../services/api';
@@ -40,24 +40,22 @@ const ShuffleButton: React.FC = () => {
 
   return (
     <Card>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Shuffle Deck
-        </Typography>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Typography variant="h5">Shuffle Deck</Typography>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          <Alert severity="error" onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
 
         {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
+          <Alert severity="success">
             Deck shuffled successfully!
           </Alert>
         )}
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'stretch', sm: 'center' }}>
           <Button
             variant="contained"
             color="primary"
@@ -66,9 +64,12 @@ const ShuffleButton: React.FC = () => {
             disabled={loading || !gameId}
             size="large"
           >
-            {loading ? 'Shuffling...' : 'Shuffle Game Deck'}
+            {loading ? 'Shuffling...' : 'Shuffle Game Shoe'}
           </Button>
-        </Box>
+          <Typography variant="body2" color="text.secondary">
+            Shuffling resets the shoe to a random order without affecting player hands.
+          </Typography>
+        </Stack>
       </CardContent>
     </Card>
   );

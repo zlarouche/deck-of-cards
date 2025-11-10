@@ -139,7 +139,7 @@ public class Game {
      */
     public void shuffle() {
         if (shoe.isEmpty()) {
-            return; // Nothing to shuffle
+            throw new IllegalStateException("There are no cards to shuffle");
         }
         ShuffleUtil.shuffle(shoe);
     }

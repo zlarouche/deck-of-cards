@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
-  Typography,
-  Alert,
-  TextField,
+  Divider,
+  IconButton,
   List,
   ListItem,
   ListItemText,
-  IconButton,
+  Stack,
+  TextField,
+  Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { addPlayer, removePlayer, getPlayersSorted } from '../services/api';
@@ -77,18 +79,20 @@ const PlayerManager: React.FC = () => {
 
   return (
     <Card>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Player Management
-        </Typography>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Typography variant="h5">Player Management</Typography>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          <Alert severity="error" onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
 
-        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1.5}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
+        >
           <TextField
             label="Player Name"
             value={playerName}
@@ -105,17 +109,24 @@ const PlayerManager: React.FC = () => {
           >
             Add Player
           </Button>
-        </Box>
+        </Stack>
 
-        {players.length > 0 && (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Players ({players.length})
+        <Divider />
+
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Players
+          </Typography>
+          {players.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              No players have been added yet. Add a player to begin dealing cards.
             </Typography>
-            <List>
+          ) : (
+            <List disablePadding>
               {players.map((player) => (
                 <ListItem
                   key={player.name}
+                  divider
                   secondaryAction={
                     <IconButton
                       edge="end"
@@ -134,8 +145,8 @@ const PlayerManager: React.FC = () => {
                 </ListItem>
               ))}
             </List>
-          </Box>
-        )}
+          )}
+        </Box>
       </CardContent>
     </Card>
   );

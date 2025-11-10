@@ -7,6 +7,7 @@ import {
   DealCardsRequest,
   Card,
   Player,
+  Game,
   UndealtCardsBySuit,
   UndealtCardsCount
 } from '../types';
@@ -28,6 +29,11 @@ export const createGame = async (): Promise<CreateGameResponse> => {
 
 export const deleteGame = async (gameId: string): Promise<void> => {
   await apiClient.delete(`/games/${gameId}`);
+};
+
+export const getGames = async (): Promise<Game[]> => {
+  const response = await apiClient.get<Game[]>(`/games`);
+  return response.data;
 };
 
 export const addDeckToGame = async (gameId: string, request: AddDeckRequest): Promise<void> => {
