@@ -66,7 +66,7 @@ Both layers communicate through typed DTOs generated to mirror the REST resource
 ## Features
 
 **Backend**
-- `POST /games`, `GET /games`, `DELETE /games/{id}` cover the full game lifecycle and expose multi-game management.
+- `POST /games`, `GET /games`, `DELETE /games/{id}` cover the full game lifecycle and expose multi-game management, with creation now requiring a user-supplied game name.
 - `POST /decks` creates a standard 52-card deck; `POST /games/{id}/decks` merges decks into a shoe; `GET /decks/unassigned` and `GET /games/{id}/decks` expose deck assignment state.
 - `POST /games/{id}/players` and `DELETE /games/{id}/players/{name}` manage players; player hands and totals persist per game.
 - `POST /games/{id}/deal` deals 1..n cards while validating remaining supply; a 53rd request on a single deck correctly returns no card.
@@ -74,14 +74,16 @@ Both layers communicate through typed DTOs generated to mirror the REST resource
 - `GET /games/{id}/players/{name}/cards` exposes each player’s current hand.
 - `GET /games/{id}/undealt/suits` and `GET /games/{id}/undealt/cards` provide remaining card statistics as required.
 - `POST /games/{id}/shuffle` performs a SecureRandom-backed Fisher–Yates shuffle and can be invoked at any time.
+- `POST /games/{id}/reset` returns all player hands to the shoe while retaining the game, players, and decks.
 
 **Frontend**
-- Workflow-driven UI for creating games, generating decks, assigning them to shoes, and listing existing games.
+- Workflow-driven UI for naming games at creation time, generating decks, assigning them to shoes, and listing existing games with friendly labels.
 - Player management dashboard with live hand totals, sorted leaderboard, and contextual actions.
 - Deal cards panel supporting player/quantity selection with feedback on completion.
 - Player hand viewer with suit-aware styling and card metadata.
 - Undealt cards explorer (suit view and card-by-card breakdown).
 - Global shuffle action with loading indicator and confirmation.
+- Reset action surfaces the backend reset API to quickly recycle dealt cards without deleting a game.
 
 ## Technology Stack
 
@@ -340,9 +342,11 @@ http://localhost:8080/api
 #### Games
 
 - **POST** `/games` - Create a new game
-  - Response: `{ "gameId": "string" }`
+  - Request Body: `{ "name": "string" }`
+  - Response: `{ "gameId": "string", "name": "string" }`
 - **GET** `/games` - List all active games with deck and player counts
 - **DELETE** `/games/{gameId}` - Delete a game
+- **POST** `/games/{gameId}/reset` - Return all player cards to the shoe without removing decks or players
 
 #### Decks
 
