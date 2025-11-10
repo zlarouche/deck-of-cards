@@ -64,8 +64,8 @@ Both layers communicate through typed DTOs generated to mirror the REST resource
 ## Features
 
 **Backend**
-- `POST /games`, `DELETE /games/{id}` manage game lifecycle and isolate state per game.
-- `POST /decks` creates a standard 52-card deck; `POST /games/{id}/decks` merges decks into a shoe that cannot be removed once added.
+- `POST /games`, `GET /games`, `DELETE /games/{id}` cover the full game lifecycle and expose multi-game management.
+- `POST /decks` creates a standard 52-card deck; `POST /games/{id}/decks` merges decks into a shoe; `GET /decks/unassigned` and `GET /games/{id}/decks` expose deck assignment state.
 - `POST /games/{id}/players` and `DELETE /games/{id}/players/{name}` manage players; player hands and totals persist per game.
 - `POST /games/{id}/deal` deals 1..n cards while validating remaining supply; a 53rd request on a single deck correctly returns no card.
 - `GET /games/{id}/players` returns the leaderboard sorted by face-value hand totals.
@@ -74,8 +74,8 @@ Both layers communicate through typed DTOs generated to mirror the REST resource
 - `POST /games/{id}/shuffle` performs a SecureRandom-backed Fisher–Yates shuffle and can be invoked at any time.
 
 **Frontend**
-- Workflow-driven UI for game creation, deck creation, and shoe assembly.
-- Player management dashboard with live hand totals and sorted leaderboard.
+- Workflow-driven UI for creating games, generating decks, assigning them to shoes, and listing existing games.
+- Player management dashboard with live hand totals, sorted leaderboard, and contextual actions.
 - Deal cards panel supporting player/quantity selection with feedback on completion.
 - Player hand viewer with suit-aware styling and card metadata.
 - Undealt cards explorer (suit view and card-by-card breakdown).
@@ -299,12 +299,14 @@ sudo systemctl enable docker
    npm install
    ```
 
-3. Start the development server:
+3. (Optional) Configure the API base URL by creating a `.env` file with `REACT_APP_API_URL=http://localhost:8080/api` if the backend is not running on the default host/port.
+
+4. Start the development server:
    ```bash
    npm start
    ```
 
-4. The application will be available at `http://localhost:3000`
+5. The application will be available at `http://localhost:3000`
 
 ### Docker Setup
 
@@ -337,16 +339,17 @@ http://localhost:8080/api
 
 - **POST** `/games` - Create a new game
   - Response: `{ "gameId": "string" }`
-
+- **GET** `/games` - List all active games with deck and player counts
 - **DELETE** `/games/{gameId}` - Delete a game
 
 #### Decks
 
 - **POST** `/decks` - Create a new deck
   - Response: `{ "deckId": "string" }`
-
+- **GET** `/decks/unassigned` - Fetch deck IDs not yet associated with a game
 - **POST** `/games/{gameId}/decks` - Add a deck to a game
   - Request Body: `{ "deckId": "string" }`
+- **GET** `/games/{gameId}/decks` - Retrieve deck IDs already assigned to the game
 
 #### Players
 
