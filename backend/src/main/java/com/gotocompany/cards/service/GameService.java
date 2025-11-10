@@ -8,6 +8,7 @@ import com.gotocompany.cards.model.enums.Suit;
 import com.gotocompany.cards.repository.DeckRepository;
 import com.gotocompany.cards.repository.GameRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,9 +30,13 @@ public class GameService {
     /**
      * Creates a new game.
      */
-    public Game createGame() {
+    public Game createGame(String name) {
+        if (!StringUtils.hasText(name)) {
+            throw new IllegalArgumentException("Game name must not be blank");
+        }
+        String trimmedName = name.trim();
         String gameId = UUID.randomUUID().toString();
-        Game game = new Game(gameId);
+        Game game = new Game(gameId, trimmedName);
         return gameRepository.save(game);
     }
 
@@ -209,6 +214,15 @@ public class GameService {
         Game game = findGameById(gameId);
         game.shuffle();
         // No need to save as shuffle modifies the internal list in-place
+    }
+
+    /**
+     * Resets a game by returning all player cards to the shoe.
+     */
+    public void resetGame(String gameId) {
+        Game game = findGameById(gameId);
+        game.reset();
+        gameRepository.save(game);
     }
 
 }

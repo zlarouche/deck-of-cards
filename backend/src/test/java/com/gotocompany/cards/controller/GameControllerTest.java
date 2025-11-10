@@ -51,12 +51,16 @@ class GameControllerTest {
     @SuppressWarnings("null")
     @Test
     void testCreateGame() throws Exception {
-        Game mockGame = new Game(gameId);
-        when(gameService.createGame()).thenReturn(mockGame);
+        Game mockGame = new Game(gameId, "Test Game");
+        when(gameService.createGame(anyString())).thenReturn(mockGame);
         
-        mockMvc.perform(post("/api/games"))
+        mockMvc.perform(post("/api/games")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Test Game\"}"))
                 .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.gameId").value(gameId))
+                .andExpect(jsonPath("$.name").value("Test Game"));
     }
 
     @SuppressWarnings("null")
@@ -106,6 +110,14 @@ class GameControllerTest {
         doNothing().when(gameService).shuffleGameDeck(anyString());
         
         mockMvc.perform(post("/api/games/" + gameId + "/shuffle"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testResetGame() throws Exception {
+        doNothing().when(gameService).resetGame(anyString());
+
+        mockMvc.perform(post("/api/games/" + gameId + "/reset"))
                 .andExpect(status().isOk());
     }
 

@@ -15,6 +15,7 @@ import com.gotocompany.cards.model.Player;
  */
 public class GameDto {
     private String id;
+    private String name;
     private List<Card> shoe;
     private Map<String, Player> players;
     private Set<String> addedDeckIds;
@@ -23,6 +24,7 @@ public class GameDto {
 
     public GameDto(Game game) {
         this.id = game.getId();
+        this.name = game.getName();
         this.shoe = game.getShoe();
         this.players = game.getPlayers().stream()
                 .collect(Collectors.toMap(Player::getName, Function.identity()));
@@ -33,6 +35,10 @@ public class GameDto {
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public List<Card> getShoe() {
@@ -57,6 +63,10 @@ public class GameDto {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setShoe(List<Card> shoe) {

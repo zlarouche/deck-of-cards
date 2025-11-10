@@ -5,12 +5,14 @@ package com.gotocompany.cards.dto;
  */
 public class CreateGameResponse {
     private String gameId;
+    private String name;
 
     public CreateGameResponse() {
     }
 
-    public CreateGameResponse(String gameId) {
+    public CreateGameResponse(String gameId, String name) {
         this.gameId = gameId;
+        this.name = name;
     }
 
     public String getGameId() {
@@ -19,6 +21,14 @@ public class CreateGameResponse {
 
     public void setGameId(String gameId) {
         this.gameId = gameId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
 

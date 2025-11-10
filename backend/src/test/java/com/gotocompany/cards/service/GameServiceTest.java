@@ -27,19 +27,29 @@ class GameServiceTest {
         gameService = new GameService(gameRepository, deckRepository);
     }
 
+    private Game createGame() {
+        return gameService.createGame("Test Game");
+    }
+
     @Test
     void testCreateGame() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         assertNotNull(game);
         assertNotNull(game.getId());
+        assertEquals("Test Game", game.getName());
         assertEquals(0, game.getShoeSize());
         assertEquals(0, game.getPlayers().size());
         assertEquals(0, game.getAddedDeckIds().size());
     }
 
     @Test
+    void testCreateGameWithBlankNameThrows() {
+        assertThrows(IllegalArgumentException.class, () -> gameService.createGame("  "));
+    }
+
+    @Test
     void testDeleteGame() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         String gameId = game.getId();
         assertTrue(gameRepository.existsById(gameId));
         
@@ -49,7 +59,7 @@ class GameServiceTest {
 
     @Test 
     void testGetGames() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         List<Game> games = gameService.getGames();
         assertEquals(1, games.size());
         assertEquals(game.getId(), games.get(0).getId());
@@ -70,7 +80,7 @@ class GameServiceTest {
 
     @Test
     void testAddDeckToGame() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         var deck = deckService.createDeck();
         
         gameService.addDeckToGame(game.getId(), deck.getId());
@@ -81,7 +91,7 @@ class GameServiceTest {
 
     @Test
     void testAddMultipleDecksToGame() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         var deck1 = deckService.createDeck();
         var deck2 = deckService.createDeck();
         
@@ -94,7 +104,7 @@ class GameServiceTest {
 
     @Test
     void testCannotAddSameDeckTwice() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         var deck = deckService.createDeck();
         
         gameService.addDeckToGame(game.getId(), deck.getId());
@@ -106,7 +116,7 @@ class GameServiceTest {
 
     @Test
     void testAddPlayer() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         gameService.addPlayer(game.getId(), "Alice");
         
         Game updatedGame = gameService.findGameById(game.getId());
@@ -117,7 +127,7 @@ class GameServiceTest {
 
     @Test
     void testRemovePlayer() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         gameService.addPlayer(game.getId(), "Alice");
         gameService.removePlayer(game.getId(), "Alice");
         
@@ -127,7 +137,7 @@ class GameServiceTest {
 
     @Test
     void testDealCards() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         var deck = deckService.createDeck();
         gameService.addDeckToGame(game.getId(), deck.getId());
         gameService.addPlayer(game.getId(), "Alice");
@@ -143,7 +153,7 @@ class GameServiceTest {
 
     @Test
     void testDealAllCardsFromSingleDeck() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         var deck = deckService.createDeck();
         gameService.addDeckToGame(game.getId(), deck.getId());
         gameService.addPlayer(game.getId(), "Alice");
@@ -164,7 +174,7 @@ class GameServiceTest {
 
     @Test
     void testGetPlayerCards() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         var deck = deckService.createDeck();
         gameService.addDeckToGame(game.getId(), deck.getId());
         gameService.addPlayer(game.getId(), "Alice");
@@ -176,7 +186,7 @@ class GameServiceTest {
 
     @Test
     void testGetPlayersSorted() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         var deck = deckService.createDeck();
         gameService.addDeckToGame(game.getId(), deck.getId());
         gameService.addPlayer(game.getId(), "Alice");
@@ -194,7 +204,7 @@ class GameServiceTest {
 
     @Test
     void testGetUndealtCardsBySuit() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         var deck = deckService.createDeck();
         gameService.addDeckToGame(game.getId(), deck.getId());
         
@@ -206,7 +216,7 @@ class GameServiceTest {
 
     @Test
     void testShuffleGameDeck() {
-        Game game = gameService.createGame();
+        Game game = createGame();
         var deck = deckService.createDeck();
         gameService.addDeckToGame(game.getId(), deck.getId());
         
@@ -235,6 +245,29 @@ class GameServiceTest {
         }
         // This is probabilistic, but with 52 cards, it's extremely unlikely to be in the same order
         assertTrue(orderChanged || beforeShuffle.size() <= 1);
+    }
+
+    @Test
+    void testResetGame() {
+        Game game = createGame();
+        var deck = deckService.createDeck();
+        gameService.addDeckToGame(game.getId(), deck.getId());
+        gameService.addPlayer(game.getId(), "Alice");
+        gameService.dealCards(game.getId(), "Alice", 5);
+
+        Game beforeReset = gameService.findGameById(game.getId());
+        Player aliceBefore = beforeReset.getPlayer("Alice");
+        assertNotNull(aliceBefore);
+        assertEquals(5, aliceBefore.getHandSize());
+        assertEquals(47, beforeReset.getShoeSize());
+
+        gameService.resetGame(game.getId());
+
+        Game afterReset = gameService.findGameById(game.getId());
+        Player aliceAfter = afterReset.getPlayer("Alice");
+        assertNotNull(aliceAfter);
+        assertEquals(0, aliceAfter.getHandSize());
+        assertEquals(52, afterReset.getShoeSize());
     }
 }
 

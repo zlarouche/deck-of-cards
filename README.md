@@ -79,11 +79,16 @@ Both layers communicate through typed DTOs generated to mirror the REST resource
 **Frontend**
 - Workflow-driven UI for naming games at creation time, generating decks, assigning them to shoes, and listing existing games with friendly labels.
 - Player management dashboard with live hand totals, sorted leaderboard, and contextual actions.
+  - Removing a player returns cards to the shoe.
 - Deal cards panel supporting player/quantity selection with feedback on completion.
 - Player hand viewer with suit-aware styling and card metadata.
 - Undealt cards explorer (suit view and card-by-card breakdown).
+<<<<<<< HEAD
 - Global shuffle action with loading indicator and confirmation.
 - Reset action surfaces the backend reset API to quickly recycle dealt cards without deleting a game.
+=======
+- Global shuffle action with confirmation.
+>>>>>>> 003cf38d871e069629c175261b58158b31b59ead
 
 ## Technology Stack
 

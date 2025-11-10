@@ -29,10 +29,10 @@ public class GameController {
 
     @PostMapping
     @Operation(summary = "Create a new game", description = "Creates a new game with an empty shoe and no players")
-    public ResponseEntity<CreateGameResponse> createGame() {
-        var game = gameService.createGame();
+    public ResponseEntity<CreateGameResponse> createGame(@Valid @RequestBody CreateGameRequest request) {
+        var game = gameService.createGame(request.getName());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new CreateGameResponse(game.getId()));
+                .body(new CreateGameResponse(game.getId(), game.getName()));
     }
 
     @DeleteMapping("/{gameId}")
@@ -141,6 +141,13 @@ public class GameController {
     @Operation(summary = "Shuffle game deck", description = "Shuffles the game deck (shoe) using Fisher-Yates algorithm")
     public ResponseEntity<Void> shuffleGameDeck(@PathVariable String gameId) {
         gameService.shuffleGameDeck(gameId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{gameId}/reset")
+    @Operation(summary = "Reset game", description = "Returns all dealt cards to the shoe while keeping players in the game")
+    public ResponseEntity<Void> resetGame(@PathVariable String gameId) {
+        gameService.resetGame(gameId);
         return ResponseEntity.ok().build();
     }
 

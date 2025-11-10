@@ -9,12 +9,20 @@ import java.util.*;
  */
 public class Game {
     private final String id;
+    private final String name;
     private final List<Card> shoe; // The game deck (shoe) containing cards from all added decks
     private final Map<String, Player> players;
     private final Set<String> addedDeckIds; // Track which decks have been added
-
-    public Game(String id) {
+    
+    public Game(String id, String name) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Game id cannot be blank");
+        }
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Game name cannot be blank");
+        }
         this.id = id;
+        this.name = name;
         this.shoe = new ArrayList<>();
         this.players = new HashMap<>();
         this.addedDeckIds = new HashSet<>();
@@ -22,6 +30,10 @@ public class Game {
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     /**
@@ -144,9 +156,22 @@ public class Game {
         ShuffleUtil.shuffle(shoe);
     }
 
+    /**
+     * Resets the game by returning all player cards to the shoe
+     * while keeping the current players and decks in place.
+     */
+    public void reset() {
+        for (Player player : players.values()) {
+            List<Card> returnedCards = player.releaseHand();
+            if (!returnedCards.isEmpty()) {
+                shoe.addAll(returnedCards);
+            }
+        }
+    }
+
     @Override
     public String toString() {
-        return "Game{id='" + id + "', shoeSize=" + shoe.size() + ", players=" + players.size() + "}";
+        return "Game{id='" + id + "', name='" + name + "', shoeSize=" + shoe.size() + ", players=" + players.size() + "}";
     }
 }
 
