@@ -19,7 +19,7 @@ import ShuffleButton from './components/ShuffleButton';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#093583',
+      main: '#005a00',
     },
     secondary: {
       main: '#835809',
