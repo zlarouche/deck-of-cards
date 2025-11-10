@@ -20,6 +20,8 @@ A full-stack application for managing card games with multiple players, decks, a
 - [API Documentation](#api-documentation)
 - [Testing](#testing)
 - [Docker Deployment](#docker-deployment)
+- [Design Decisions](#design-decisions)
+- [Future Enhancements](#future-enhancements)
 
 ## Overview
 
