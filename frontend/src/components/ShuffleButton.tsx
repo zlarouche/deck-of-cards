@@ -51,7 +51,7 @@ const ShuffleButton: React.FC = () => {
 
         {success && (
           <Alert severity="success">
-            Deck shuffled successfully!
+            Shoe has been shuffled successfully!
           </Alert>
         )}
 
@@ -66,9 +66,6 @@ const ShuffleButton: React.FC = () => {
           >
             {loading ? 'Shuffling...' : 'Shuffle Game Shoe'}
           </Button>
-          <Typography variant="body2" color="text.secondary">
-            Shuffling resets the shoe to a random order without affecting player hands.
-          </Typography>
         </Stack>
       </CardContent>
     </Card>

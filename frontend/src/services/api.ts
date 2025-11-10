@@ -22,13 +22,17 @@ const apiClient = axios.create({
 });
 
 // Games
-export const createGame = async (): Promise<CreateGameResponse> => {
-  const response = await apiClient.post<CreateGameResponse>('/games');
+export const createGame = async (name: string): Promise<CreateGameResponse> => {
+  const response = await apiClient.post<CreateGameResponse>('/games', { name });
   return response.data;
 };
 
 export const deleteGame = async (gameId: string): Promise<void> => {
   await apiClient.delete(`/games/${gameId}`);
+};
+
+export const resetGame = async (gameId: string): Promise<void> => {
+  await apiClient.post(`/games/${gameId}/reset`);
 };
 
 export const getGames = async (): Promise<Game[]> => {

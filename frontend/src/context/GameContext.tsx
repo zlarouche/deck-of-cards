@@ -3,6 +3,8 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 interface GameContextType {
   gameId: string | null;
   setGameId: (id: string | null) => void;
+  gameName: string | null;
+  setGameName: (name: string | null) => void;
   decks: string[];
   addDeck: (deckId: string) => void;
   refreshTrigger: number;
@@ -15,11 +17,12 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [gameId, setGameId] = useState<string | null>(null);
+  const [gameName, setGameName] = useState<string | null>(null);
   const [decks, setDecks] = useState<string[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const addDeck = (deckId: string) => {
-    setDecks([...decks, deckId]);
+    setDecks(prev => [...prev, deckId]);
   };
 
   const replaceDecks = (deckIds: string[]) => {
@@ -35,7 +38,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   } 
 
   return (
-    <GameContext.Provider value={{ gameId, setGameId, decks, addDeck, refreshTrigger, triggerRefresh, clearGameDecks, replaceDecks }}>
+    <GameContext.Provider value={{ gameId, setGameId, gameName, setGameName, decks, addDeck, refreshTrigger, triggerRefresh, clearGameDecks, replaceDecks }}>
       {children}
     </GameContext.Provider>
   );

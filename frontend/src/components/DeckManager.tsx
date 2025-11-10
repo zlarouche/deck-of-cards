@@ -20,6 +20,12 @@ const DeckManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [unassignedDecks, setUnassignedDecks] = useState<string[]>([]);
+  const [availableDeckNumbers, setAvailableDeckNumbers] = useState<Record<string, number>>({});
+
+  const getAvailableDeckLabel = (deckId: string) => {
+    const labelNumber = availableDeckNumbers[deckId];
+    return labelNumber ? `Deck ${labelNumber}` : deckId;
+  };
 
   const handleCreateDeck = async () => {
     setLoading(true);
@@ -27,6 +33,14 @@ const DeckManager: React.FC = () => {
     try {
       const response = await createDeck();
       setUnassignedDecks((prev) => [...prev, response.deckId]);
+      setAvailableDeckNumbers((prev) => {
+        if (prev[response.deckId]) {
+          return prev;
+        }
+        const values = Object.values(prev);
+        const nextNumber = values.length > 0 ? Math.max(...values) + 1 : 1;
+        return { ...prev, [response.deckId]: nextNumber };
+      });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create deck');
     } finally {
@@ -62,9 +76,31 @@ const DeckManager: React.FC = () => {
       ]);
       setUnassignedDecks(availableDeckIds);
       replaceDecks(addedDeckIds);
+      setAvailableDeckNumbers((prev) => {
+        const updated: Record<string, number> = {};
+        let maxNumber = 0;
+        availableDeckIds.forEach((deckId) => {
+          const existingNumber = prev[deckId];
+          if (existingNumber) {
+            updated[deckId] = existingNumber;
+            if (existingNumber > maxNumber) {
+              maxNumber = existingNumber;
+            }
+          }
+        });
+        let nextNumber = maxNumber + 1;
+        availableDeckIds.forEach((deckId) => {
+          if (!updated[deckId]) {
+            updated[deckId] = nextNumber;
+            nextNumber += 1;
+          }
+        });
+        return updated;
+      });
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to load decks');
       setUnassignedDecks([]);
+      setAvailableDeckNumbers({});
       if (!gameId) {
         replaceDecks([]);
       }
@@ -133,7 +169,7 @@ const DeckManager: React.FC = () => {
                     </Button>
                   }
                 >
-                  <ListItemText primary={deckId} />
+                  <ListItemText primary={getAvailableDeckLabel(deckId)} />
                 </ListItem>
               ))}
             </List>
@@ -152,9 +188,9 @@ const DeckManager: React.FC = () => {
             </Typography>
           ) : (
             <List disablePadding>
-              {decks.map((deckId) => (
+              {decks.map((deckId, index) => (
                 <ListItem key={deckId} divider>
-                  <ListItemText primary={`Deck ID: ${deckId}`} />
+                  <ListItemText primary={`Deck ${index + 1}`} />
                 </ListItem>
               ))}
             </List>

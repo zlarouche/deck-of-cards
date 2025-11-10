@@ -37,6 +37,7 @@ export interface Player {
 
 export interface Game {
   id: string;
+  name: string;
   shoe: Card[];
   players: Record<string, Player>;
   addedDeckIds: string[];
@@ -46,6 +47,7 @@ export interface Game {
 
 export interface CreateGameResponse {
   gameId: string;
+  name: string;
 }
 
 export interface CreateDeckResponse {
