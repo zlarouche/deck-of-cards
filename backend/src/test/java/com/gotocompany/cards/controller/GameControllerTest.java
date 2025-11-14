@@ -6,6 +6,9 @@ import com.gotocompany.cards.dto.AddPlayerRequest;
 import com.gotocompany.cards.dto.RemovePlayerRequest;
 import com.gotocompany.cards.dto.DealCardsRequest;
 import com.gotocompany.cards.model.Game;
+import com.gotocompany.cards.model.Card;
+import com.gotocompany.cards.model.enums.Suit;
+import com.gotocompany.cards.model.enums.FaceValue;
 import com.gotocompany.cards.service.DeckService;
 import com.gotocompany.cards.service.GameService;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +21,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -75,6 +81,39 @@ class GameControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void deleteGame() throws Exception {
+        doNothing().when(gameService).deleteGame(anyString());
+
+        mockMvc.perform(delete("/api/games/" + gameId))
+                .andExpect(status().isNoContent());
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    void testGetGames() throws Exception {
+        List<Game> games = new ArrayList<>();
+        games.add(new Game("game-1", "Test Game"));
+        games.add(new Game("game-2", "Test Game 2"));
+        when(gameService.getGames()).thenReturn(games);
+        mockMvc.perform(get("/api/games"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(games.size()));
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    void testGetDecks() throws Exception {
+        Set<String> deckIds = new HashSet<>();
+        deckIds.add("deck-1");
+        deckIds.add("deck-2");
+        when(gameService.getAddedDeckIds(anyString())).thenReturn(deckIds);
+        mockMvc.perform(get("/api/games/" + gameId + "/decks"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+    
     @SuppressWarnings("null")
     @Test
     void testAddPlayer() throws Exception {
@@ -87,10 +126,16 @@ class GameControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("null")
     @Test
     void testRemovePlayer() throws Exception {
         RemovePlayerRequest request = new RemovePlayerRequest("Alice");
+        doNothing().when(gameService).removePlayer(anyString(), anyString());
+
+        mockMvc.perform(delete("/api/games/" + gameId + "/players/Alice")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
     }
 
     @SuppressWarnings("null")
@@ -103,6 +148,18 @@ class GameControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    void testGetPlayerCards() throws Exception {
+        List<Card> cards = new ArrayList<>();
+        cards.add(new Card(Suit.HEARTS, FaceValue.ACE));
+        cards.add(new Card(Suit.DIAMONDS, FaceValue.KING));
+        when(gameService.getPlayerCards(anyString(), anyString())).thenReturn(cards);
+        mockMvc.perform(get("/api/games/" + gameId + "/players/Alice/cards"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -140,5 +197,14 @@ class GameControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
-}
 
+    @SuppressWarnings("null")
+    @Test
+    void testGetUndealtCardsCount() throws Exception {
+        when(gameService.getUndealtCardsCount(anyString())).thenReturn(new HashMap<>());
+        mockMvc.perform(get("/api/games/" + gameId + "/undealt/cards"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+}

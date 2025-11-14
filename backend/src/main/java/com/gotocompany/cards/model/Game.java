@@ -134,9 +134,6 @@ public class Game {
 
         List<Card> dealtCards = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            if (shoe.isEmpty()) {
-                break; // No more cards to deal
-            }
             Card card = shoe.remove(0); // Remove from front (top of deck)
             dealtCards.add(card);
             player.addCard(card);

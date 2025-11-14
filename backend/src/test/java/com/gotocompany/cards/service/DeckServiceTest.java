@@ -27,6 +27,12 @@ class DeckServiceTest {
     }
 
     @Test
+    void testDeckExists() {
+        Deck deck = deckService.createDeck();
+        assertTrue(deckService.deckExists(deck.getId()));
+    }
+
+    @Test
     void testDeckHasAllCards() {
         Deck deck = deckService.createDeck();
         var cards = deck.getCards();

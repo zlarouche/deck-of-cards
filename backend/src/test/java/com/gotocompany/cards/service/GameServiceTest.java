@@ -51,6 +51,10 @@ class GameServiceTest {
     void testDeleteGame() {
         Game game = createGame();
         String gameId = game.getId();
+        var deck1 = deckService.createDeck();
+        var deck2 = deckService.createDeck();
+        gameService.addDeckToGame(gameId, deck1.getId());
+        gameService.addDeckToGame(gameId, deck2.getId());
         assertTrue(gameRepository.existsById(gameId));
         
         gameService.deleteGame(gameId);
@@ -87,6 +91,16 @@ class GameServiceTest {
         
         Game updatedGame = gameService.findGameById(game.getId());
         assertEquals(52, updatedGame.getShoeSize());
+    }
+
+    @Test
+    void testGetAssignedDeckIds() {
+        Game game = createGame();
+        var deck1 = deckService.createDeck();
+        var deck2 = deckService.createDeck();
+        gameService.addDeckToGame(game.getId(), deck1.getId());
+        gameService.addDeckToGame(game.getId(), deck2.getId());
+        assertEquals(2, gameService.getAddedDeckIds(game.getId()).size());
     }
 
     @Test
@@ -136,6 +150,14 @@ class GameServiceTest {
     }
 
     @Test
+    void testRemoveNonExistentPlayer() {
+        Game game = createGame();
+        assertThrows(IllegalArgumentException.class, () -> {
+            gameService.removePlayer(game.getId(), "Alice");
+        });
+    }
+
+    @Test
     void testDealCards() {
         Game game = createGame();
         var deck = deckService.createDeck();
@@ -149,6 +171,34 @@ class GameServiceTest {
         assertEquals(47, updatedGame.getShoeSize());
         Player player = updatedGame.getPlayer("Alice");
         assertEquals(5, player.getHandSize());
+    }
+
+    @Test
+    void testDealCardsNegativeCountThrows() {
+        Game game = createGame();
+        var deck = deckService.createDeck();
+        gameService.addDeckToGame(game.getId(), deck.getId());
+        gameService.addPlayer(game.getId(), "Alice");
+        
+        assertThrows(IllegalArgumentException.class, () -> gameService.dealCards(game.getId(), "Alice", -5));
+    }
+
+    @Test
+    void testDealCardsNonExistentPlayerThrows() {
+        Game game = createGame();
+        var deck = deckService.createDeck();
+        gameService.addDeckToGame(game.getId(), deck.getId());
+        assertThrows(IllegalArgumentException.class, () -> gameService.dealCards(game.getId(), "Alice", 5));
+    }
+
+    @Test
+    void testDealCardsMoreThanAvailableThrows() {
+        Game game = createGame();
+        var deck = deckService.createDeck();
+        gameService.addDeckToGame(game.getId(), deck.getId());
+        gameService.addPlayer(game.getId(), "Alice");
+        
+        assertThrows(IllegalStateException.class, () -> gameService.dealCards(game.getId(), "Alice", 53));
     }
 
     @Test
@@ -185,6 +235,16 @@ class GameServiceTest {
     }
 
     @Test
+    void testGetPlayerCardsNonExistentPlayer() {
+        Game game = createGame();
+        var deck = deckService.createDeck();
+        gameService.addDeckToGame(game.getId(), deck.getId());
+        assertThrows(IllegalArgumentException.class, () -> {
+            gameService.getPlayerCards(game.getId(), null);
+        });
+    }
+
+    @Test
     void testGetPlayersSorted() {
         Game game = createGame();
         var deck = deckService.createDeck();
@@ -212,6 +272,23 @@ class GameServiceTest {
         
         // Each suit should have 13 cards in a standard deck
         suitCounts.values().forEach(count -> assertEquals(13, count));
+    }
+
+    @Test
+    void testGetUndealtCardsCount() {
+        Game game = createGame();
+        var deck = deckService.createDeck();
+        gameService.addDeckToGame(game.getId(), deck.getId());
+        gameService.addPlayer(game.getId(), "Alice");
+        gameService.dealCards(game.getId(), "Alice", 5);
+
+        var cardCounts = gameService.getUndealtCardsCount(game.getId());
+        int totalCards = cardCounts.values().stream()             // Collection<Map<FaceValue, Integer>>
+                .flatMap(faceMap -> faceMap.values().stream())    // Stream<Integer>
+                .mapToInt(Integer::intValue)                      // IntStream
+                .sum();
+
+        assertEquals(47, totalCards);
     }
 
     @Test
@@ -248,6 +325,12 @@ class GameServiceTest {
     }
 
     @Test
+    void testShuffleGameDeckEmptyGameThrows() {
+        Game game = createGame();
+        assertThrows(IllegalStateException.class, () -> gameService.shuffleGameDeck(game.getId()));
+    }
+
+    @Test
     void testResetGame() {
         Game game = createGame();
         var deck = deckService.createDeck();
@@ -269,5 +352,6 @@ class GameServiceTest {
         assertEquals(0, aliceAfter.getHandSize());
         assertEquals(52, afterReset.getShoeSize());
     }
+
 }
 

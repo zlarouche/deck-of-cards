@@ -10,8 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 @WebMvcTest(DeckController.class)
 class DeckControllerTest {
@@ -30,6 +34,16 @@ class DeckControllerTest {
         
         mockMvc.perform(post("/api/decks"))
                 .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    void testGetUnassignedDeckIds() throws Exception {
+        List<String> deckIds = Arrays.asList("deck-1", "deck-2");
+        when(deckService.getUnassignedDeckIds()).thenReturn(deckIds);
+        mockMvc.perform(get("/api/decks/unassigned"))
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 }
