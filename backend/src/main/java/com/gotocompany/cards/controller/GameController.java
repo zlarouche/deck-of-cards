@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 /**
  * REST controller for game operations.
+ * Errors are handled centrally by GlobalExceptionHandler.
  */
 @RestController
 @RequestMapping("/api/games")

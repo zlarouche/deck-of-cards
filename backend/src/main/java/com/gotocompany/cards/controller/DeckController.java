@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * REST controller for deck operations.
+ * Errors are handled centrally by GlobalExceptionHandler.
  */
 @RestController
 @RequestMapping("/api/decks")
